@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SagePKM
 {
@@ -15,6 +14,7 @@ namespace SagePKM
 
         // The user's role (e.g., "Researcher", "Student")
         public string Role { get; set; } = string.Empty;
+        // notre
 
         // Method: Create a new knowledge node (piece of information)
         public KnowledgeNode CreateNode(string title, string content, List<string> tags, ExternalSource? source = null)
