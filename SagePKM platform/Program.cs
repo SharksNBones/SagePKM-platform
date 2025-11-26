@@ -3,110 +3,109 @@ using System.Collections.Generic;
 
 namespace SagePKM
 {
-    // Represents a user in the system (e.g., researcher, student, academic)
+    //Start of program. 
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            //Create a new user with ID=1, name "Alice", and role "Researcher".
+            var user = new User(1, "Alice", "Researcher");
+
+            //Create a new empty knowledge graph.
+            var graph = new KnowledgeGraph();
+
+            //Creates a new node with title, content, and tags.
+            var node = user.CreateNode(
+                title: "New book added",
+                content: "Beginners guide to Java.",
+                tags: new List<string> { "Guide", "Java" }
+            );
+
+            //Add the created node to the knowledge graph.
+            graph.AddNode(node);
+
+            //Search for nodes in the graph with the tag "Java".
+            var results = user.SearchNodes(graph, "Java");
+
+            //Print how many nodes were found. 
+            Console.WriteLine($"Found {results.Count} node(s):");
+
+            //Loop through each found node and print its title and summary.
+            foreach (var result in results)
+            {
+                Console.WriteLine($"- {result.Title}: {result.GetSummary()}");
+            }
+        }
+    }
+    
+    // Represents a user who interacts with the knowledge graph.
     public class User
     {
-        // Unique ID number for each user
-        public int UserId { get; set; }
+        public int UserId { get; } //Unique identifier for the user.
+        public string Name { get; } //User's name.
+        public string Role { get; } //user's role (e.g., Researcher, Admin).
 
-        // The user's name
-        public string Name { get; set; } = string.Empty;
-
-        // The user's role (e.g., "Researcher", "Student")
-        public string Role { get; set; } = string.Empty;
-        // notre
-
-        // Method: Create a new knowledge node (piece of information)
-        public KnowledgeNode CreateNode(string title, string content, List<string> tags, ExternalSource? source = null)
+        // Constructor to initialize a new user with ID, name, and role.
+        public User(int userId, string name, string role)
         {
-            var node = new KnowledgeNode
-            {
-                NodeId = Guid.NewGuid(),      // Generate a unique identifier
-                Title = title,
-                Content = content,
-                CreatedDate = DateTime.Now,
-                Tags = tags,
-                Source = source
-            };
-
-            return node;
+            UserId = userId;
+            Name = name;
+            Role = role;
         }
-
-        // Method: Search for nodes in the knowledge graph by keyword
-        public List<KnowledgeNode> SearchNodes(KnowledgeGraph graph, string keyword)
+        
+        //Method for creating a new node with given title, content, and tags in the knowledge graph.
+        public Node CreateNode(string title, string content, List<string> tags)
         {
-            return graph.SearchGraph(keyword);
+            return new Node(title, content, tags);
         }
-
-        // Method: Link two knowledge nodes together with a relationship type
-        public void LinkNodes(KnowledgeGraph graph, KnowledgeNode source, KnowledgeNode target, string type)
+        
+        //Method for searching nodes in the knowledge graph that contain a specific keyword in their tags.
+        public List<Node> SearchNodes(KnowledgeGraph graph, string keyword)
         {
-            var link = new Link
-            {
-                LinkId = Guid.NewGuid(),
-                SourceNode = source,
-                TargetNode = target,
-                Type = type
-            };
-
-            graph.AddLink(link);
+            return graph.Nodes.FindAll(n => n.Tags.Contains(keyword));
         }
     }
-
-    // Knowledge Node
-    public class KnowledgeNode
-    {
-        public Guid NodeId { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public List<string> Tags { get; set; } = new();
-        public ExternalSource? Source { get; set; }
-
-        public void EditNode(string newContent)
-        {
-            Content = newContent;
-        }
-        public void AddLink(Link link)
-        {
-            // Could store links locally if needed
-        }
-        public string GetSummary()
-        {
-            return Content.Length > 100 ? Content.Substring(0, 100) + "..." : Content;
-        }
-    }
-
-    // External source (e.g., website, database, document)
-    public class ExternalSource
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Reference { get; set; } = string.Empty;
-    }
-
-    // Link between two knowledge nodes
-    public class Link
-    {
-        public Guid LinkId { get; set; }
-        public KnowledgeNode SourceNode { get; set; } = new KnowledgeNode();
-        public KnowledgeNode TargetNode { get; set; } = new KnowledgeNode();
-        public string Type { get; set; } = string.Empty;
-    }
-
-    // Knowledge graph that stores nodes and links
+   
+    // Represents a knowledge graph containing multiple nodes.
     public class KnowledgeGraph
     {
-        private readonly List<KnowledgeNode> nodes = new();
-        private readonly List<Link> links = new();
-        public void AddNode(KnowledgeNode node) => nodes.Add(node);
-        public void AddLink(Link link) => links.Add(link);
-        public List<KnowledgeNode> SearchGraph(string keyword)
+        // List of all nodes in the knowledge graph.
+        public List<Node> Nodes { get; } = new List<Node>();
+
+        //Method to add a new node to the knowledge graph.
+        public void AddNode(Node node)
         {
-            return nodes.Where(n =>
-                n.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                n.Content.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                n.Tags.Any(t => t.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-            ).ToList();
+            Nodes.Add(node);
+        }
+    }
+    
+    // Represents a single node in the knowledge graph.
+    public class Node
+    {
+        public string Title { get; } // Title of the node.
+        public string Content { get; } // Full content of the node.
+        public List<string> Tags { get; } // Tags for categorization/Search.
+
+        // Constructor to initialize a node
+        public Node(string title, string content, List<string> tags)
+        {
+            Title = title;
+            Content = content;
+            Tags = tags;
+        }
+        
+        // Returns a short summary of the content (first 50 chars)
+        public string GetSummary() 
+        {
+            return Content.Length > 50 ? Content.Substring(0, 50) + "..." : Content;
+        }
+
+        // Combines this node's content with another node's content
+        // Returns a new node with merged content but same title/tags
+        public Node add(Node other)
+        {
+            return new Node(Title, Content + other.Content, Tags);
         }
     }
 }
+
