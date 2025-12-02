@@ -14,30 +14,76 @@ namespace SagePKM
             //Create a new empty knowledge graph.
             var graph = new KnowledgeGraph();
 
-            //Creates a new node with title, content, and tags.
-            var node = user.CreateNode(
-                title: "New book added",
-                content: "Beginners guide to Java.",
-                tags: new List<string> { "Guide", "Java" }
-            );
-
-            //Add the created node to the knowledge graph.
-            graph.AddNode(node);
-
-            //Search for nodes in the graph with the tag "Java".
-            var results = user.SearchNodes(graph, "Java");
-
-            //Print how many nodes were found. 
-            Console.WriteLine($"Found {results.Count} node(s):");
-
-            //Loop through each found node and print its title and summary.
-            foreach (var result in results)
+            //Loop to continuously show menu until user exits.
+            while (true)
             {
-                Console.WriteLine($"- {result.Title}: {result.GetSummary()}");
+                //Display menu options for user interaction.
+                Console.WriteLine("\n--- SagePKM Menu ---");
+                Console.WriteLine("1. Add a new node");
+                Console.WriteLine("2. View all nodes");
+                Console.WriteLine("3. Search nodes by tag");
+                Console.WriteLine("4. Exit");
+                Console.Write("Choose an option: ");
+                var choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        //Prompt user for node details (title, content, tags).
+                        Console.Write("Enter node title: ");
+                        var title = Console.ReadLine();
+
+                        Console.Write("Enter node content: ");
+                        var content = Console.ReadLine();
+
+                        Console.Write("Enter tags (comma separated): ");
+                        var tagsInput = Console.ReadLine();
+                        var tags = new List<string>(tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries));
+
+                        //Create and add node to the knowledge graph.
+                        var node = user.CreateNode(title, content, tags);
+                        graph.AddNode(node);
+
+                        Console.WriteLine("✅ Node added successfully!");
+                        break;
+
+                    case "2":
+                        //Display all nodes currently in the knowledge graph.
+                        Console.WriteLine($"\nKnowledge Graph contains {graph.Nodes.Count} node(s):");
+                        foreach (var n in graph.Nodes)
+                        {
+                            Console.WriteLine($"- {n.Title}: {n.GetSummary()}");
+                        }
+                        break;
+
+                    case "3":
+                        //Prompt user for tag keyword and search nodes.
+                        Console.Write("Enter tag to search: ");
+                        var keyword = Console.ReadLine();
+                        var results = user.SearchNodes(graph, keyword);
+
+                        //Display search results.
+                        Console.WriteLine($"\nFound {results.Count} node(s) with tag '{keyword}':");
+                        foreach (var result in results)
+                        {
+                            Console.WriteLine($"- {result.Title}: {result.GetSummary()}");
+                        }
+                        break;
+
+                    case "4":
+                        //Exit the program when user chooses option 4.
+                        Console.WriteLine("👋 Exiting SagePKM. Goodbye!");
+                        return;
+
+                    default:
+                        //Handle invalid menu choice.
+                        Console.WriteLine("Invalid choice. Try again.");
+                        break;
+                }
             }
         }
     }
-    
+
     // Represents a user who interacts with the knowledge graph.
     public class User
     {
@@ -52,20 +98,20 @@ namespace SagePKM
             Name = name;
             Role = role;
         }
-        
+
         //Method for creating a new node with given title, content, and tags in the knowledge graph.
         public Node CreateNode(string title, string content, List<string> tags)
         {
             return new Node(title, content, tags);
         }
-        
+
         //Method for searching nodes in the knowledge graph that contain a specific keyword in their tags.
         public List<Node> SearchNodes(KnowledgeGraph graph, string keyword)
         {
             return graph.Nodes.FindAll(n => n.Tags.Contains(keyword));
         }
     }
-   
+
     // Represents a knowledge graph containing multiple nodes.
     public class KnowledgeGraph
     {
@@ -78,7 +124,7 @@ namespace SagePKM
             Nodes.Add(node);
         }
     }
-    
+
     // Represents a single node in the knowledge graph.
     public class Node
     {
@@ -93,9 +139,9 @@ namespace SagePKM
             Content = content;
             Tags = tags;
         }
-        
+
         // Returns a short summary of the content (first 50 chars)
-        public string GetSummary() 
+        public string GetSummary()
         {
             return Content.Length > 50 ? Content.Substring(0, 50) + "..." : Content;
         }
@@ -107,5 +153,4 @@ namespace SagePKM
             return new Node(Title, Content + other.Content, Tags);
         }
     }
-}
-
+} 
