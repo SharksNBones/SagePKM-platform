@@ -48,12 +48,20 @@ namespace SagePKM
                         break;
 
                     case "2":
-                        //Display all nodes currently in the knowledge graph.
+                        //Display all nodes currently in the knowledge graph in table format.
                         Console.WriteLine($"\nKnowledge Graph contains {graph.Nodes.Count} node(s):");
+
+                        //Print table header.
+                        Console.WriteLine("------------------------------------------------------------");
+                        Console.WriteLine($"{"Title",-20} {"Summary",-30} {"Tags",-20}");
+                        Console.WriteLine("------------------------------------------------------------");
+
+                        //Loop through each node and print in table format.
                         foreach (var n in graph.Nodes)
                         {
-                            Console.WriteLine($"- {n.Title}: {n.GetSummary()}");
+                            Console.WriteLine($"{n.Title,-20} {n.GetSummary(),-30} {string.Join(", ", n.Tags),-20}");
                         }
+                        Console.WriteLine("------------------------------------------------------------");
                         break;
 
                     case "3":
@@ -62,12 +70,17 @@ namespace SagePKM
                         var keyword = Console.ReadLine();
                         var results = user.SearchNodes(graph, keyword);
 
-                        //Display search results.
+                        //Display search results in table format.
                         Console.WriteLine($"\nFound {results.Count} node(s) with tag '{keyword}':");
+                        Console.WriteLine("------------------------------------------------------------");
+                        Console.WriteLine($"{"Title",-20} {"Summary",-30} {"Tags",-20}");
+                        Console.WriteLine("------------------------------------------------------------");
+
                         foreach (var result in results)
                         {
-                            Console.WriteLine($"- {result.Title}: {result.GetSummary()}");
+                            Console.WriteLine($"{result.Title,-20} {result.GetSummary(),-30} {string.Join(", ", result.Tags),-20}");
                         }
+                        Console.WriteLine("------------------------------------------------------------");
                         break;
 
                     case "4":
@@ -153,4 +166,4 @@ namespace SagePKM
             return new Node(Title, Content + other.Content, Tags);
         }
     }
-} 
+}
